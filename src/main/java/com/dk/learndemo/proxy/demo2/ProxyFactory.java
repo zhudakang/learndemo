@@ -13,6 +13,7 @@ public class ProxyFactory {
     }
 
     public static void main(String[] args) {
+        //这种方式在编译的时候就已经确定了代理人和被代理人
         ProxyFactory.getProxy().sendResume("我叫peter！！！");
         ProxyFactory.getProxy().inviteInterview();
     }

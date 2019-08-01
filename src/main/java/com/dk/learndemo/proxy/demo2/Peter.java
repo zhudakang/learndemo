@@ -10,12 +10,12 @@ public class Peter implements IFindWork {
 
     @Override
     public void sendResume(String resume) {
-        System.out.println("peter类发送了简历，简历内容如下：" + resume);
+        System.out.println("peter发送了简历，简历内容如下：" + resume);
     }
 
     @Override
     public void inviteInterview() {
-        System.out.println("peter类收到了面试邀请");
+        System.out.println("peter收到了面试邀请");
     }
 
 }
