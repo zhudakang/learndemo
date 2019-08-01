@@ -29,19 +29,6 @@ public class ConsumerMethod {
 
 
     public static void main(String[] args) {
-//        Stream<Person> stream =  Stream.of(
-//                new Person(21,"zhangsan"),
-//                new Person(22,"lisi"),
-//                new Person(23,"wangwu"),
-//                new Person(24,"wangwu"),
-//                new Person(23,"lisi"),
-//                new Person(26,"lisi"),
-//                new Person(26,"zhangsan")
-//        );
-//        list = stream.filter(p -> p.getAge() > 22).limit(10).collect(toList());
-//        list.forEach(System.out::println);
-
-
         Consumer<Person> consumer  = x -> {
             if (x.getName().equals("lisi")){
                 consumerList.add(x);

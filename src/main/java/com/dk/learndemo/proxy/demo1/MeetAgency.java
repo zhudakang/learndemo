@@ -1,4 +1,4 @@
-package com.dk.learndemo.designpattern;
+package com.dk.learndemo.proxy.demo1;
 
 /**
  * @Author : zhudakang

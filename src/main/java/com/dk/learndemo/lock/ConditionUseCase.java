@@ -4,8 +4,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static sun.misc.VM.getState;
-
 /**
  * @Author: zhudakang
  * @Description : Monitor
@@ -22,7 +20,4 @@ public class ConditionUseCase {
     Lock lock = new ReentrantLock();
     //Condition是依赖于lock的
     Condition condition = lock.newCondition();
-
-
-
 }
