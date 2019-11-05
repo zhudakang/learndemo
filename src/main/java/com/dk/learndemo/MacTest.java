@@ -3,6 +3,7 @@ package com.dk.learndemo;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
+import java.security.Security;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -52,8 +53,11 @@ public class MacTest {
         byte[] shaDigest2 = mac("HmacSHA256", key2, data);
 
         //把摘要后的结果转换成十六进制的字符串（也可以使用Base64进行编码）
-        System.out.println(Hex.encodeHexString(md5Digest));
-        System.out.println(Hex.encodeHexString(shaDigest));
-        System.out.println(Hex.encodeHexString(shaDigest2));
+//        System.out.println(Hex.encodeHexString(md5Digest));
+//        System.out.println(Hex.encodeHexString(shaDigest));
+//        System.out.println(Hex.encodeHexString(shaDigest2));
+
+        //能够得到所有的Mac支持的算法
+        Security.getAlgorithms("Mac").forEach(System.out::println);
     }
 }
