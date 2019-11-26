@@ -1,0 +1,100 @@
+redis订阅模式
+原文地址:https://www.cnblogs.com/onlymate/p/9524960.html
+1.什么是pub/sub(信息通信模型)(订阅某个事件) redis 属于消息路由
+Pub/Sub功能（means Publish, Subscribe）即发布及订阅功能。基于事件的系统中，Pub/Sub是目前广泛使用的通信模型，
+它采用事件作为基本的通信机制，提供大规模系统所要求的松散耦合的交互模式：订阅者(如客户端)以事件订阅的方式表达出它有兴趣接收的一个事件或一类事件；
+发布者(如服务器)可将订阅者感兴趣的事件随时通知相关订阅者。熟悉设计模式的朋友应该了解这与23种设计模式中的观察者模式极为相似。
+同样,Redis的pub/sub是一种消息通信模式，主要的目的是解除消息发布者和消息订阅者之间的耦合,Redis作为一个pub/sub的server,在订阅者和发布者之间起到了消息路由的功能。
+2. Redis pub/sub的实现
+订阅者可以通过subscribe向redis server订阅自己感兴趣的消息类型。redis将信息类型称为通道(channel)。
+当发布者通过publish命令向redis server发送特定类型的信息时，订阅该消息类型的全部订阅者都会收到此消息。
+使用psubscribe来订阅一个模式，subscribe订阅一个channel
+
+客户端1订阅CCTV1: (订阅一个channel)
+
+127.0.0.1:6379> subscribe CCTV1
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "CCTV1"
+3) (integer) 1
+
+客户端2订阅CCTV1和CCTV2:
+127.0.0.1:6379> subscribe CCTV1 CCTV2
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "CCTV1"
+3) (integer) 1
+1) "subscribe"
+2) "CCTV2"
+3) (integer) 2
+
+此时这两个客户端分别监听这指定的频道。现在另一个客户端向服务器推送了关于这两个频道的信息。
+127.0.0.1:6379> publish CCTV1 "cctv1 is good"
+(integer) 2            //返回2表示两个客户端接收了次消息。被接收到消息的客户端如下所示。
+
+1) "message"
+2) "CCTV1"
+3) "cctv1 is good"
+----
+1) "message"
+2) "CCTV1"
+3) "cctv1 is good"
+
+如上的订阅/发布也称订阅发布到频道(使用publish与subscribe命令)，此外还有订阅发布到模式(使用psubscribe来订阅一个模式)
+订阅CCTV的全部频道
+
+127.0.0.1:6379> psubscribe CCTV*
+Reading messages... (press Ctrl-C to quit)
+1) "psubscribe"
+2) "CCTV*"
+3) (integer) 1
+当依然先如上推送一个CCTV1的消息时，该客户端正常接收。
+
+
+3. 在java中的实现
+1. 使用jedis，比较过时，现在springboot 不用RedisMsgPubSubListener extends JedisPubSub这样来实现订阅模式
+不过这种使用的是JedisPubSub 中自带的unsubscribe和subscribe
+    @Override
+    public void unsubscribe(String... channels) {
+        super.unsubscribe(channels);
+    }
+    @Override
+    public void subscribe(String... channels) {
+        super.subscribe(channels);
+    }
+    @Override
+    public void psubscribe(String... patterns) {
+        super.psubscribe(patterns);
+    }
+    @Override
+    public void punsubscribe() {
+        super.punsubscribe();
+    }
+    @Override
+    public void onMessage(String channel, String message) {
+        logger.info("onMessage: channel[{}], message[{}]",channel, message);
+    }
+    @Override
+    public void onPMessage(String pattern, String channel, String message) {
+        logger.info("onPMessage: pattern[{}], channel[{}], message[{}]", pattern, channel, message);
+    }
+这个类是简单的实现消息推送。
+
+4. 主要的应用场景一般都是spring中
+
+添加依赖：
+
+		<!-- redis依赖 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+		</dependency>
+		<!-- redis依赖commons-pool 这个依赖一定要添加 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-pool2</artifactId>
+		</dependency>
