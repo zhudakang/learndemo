@@ -8,6 +8,7 @@ import java.awt.*;
  * @Author : zhudakang
  */
 public class WhitePieces implements ChessPieces {
+
     @Override
     public void DownPieces(Graphics g, Point pt) {
         g.setColor(Color.WHITE);

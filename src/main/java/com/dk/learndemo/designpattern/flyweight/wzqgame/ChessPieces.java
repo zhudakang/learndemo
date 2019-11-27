@@ -9,6 +9,8 @@ import java.awt.*;
  * @Author : zhudakang
  */
 public interface ChessPieces {
-
-    public void DownPieces(Graphics g, Point pt);    //下子
+    /**
+     * 下棋子
+     * */
+    public void DownPieces(Graphics g, Point pt);
 }
