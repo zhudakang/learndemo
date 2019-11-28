@@ -1,4 +1,4 @@
-package com.dk.learndemo.dynamicproxy.cglib;
+package com.dk.learndemo.designpattern.dynamicproxy.cglib;
 
 import com.dk.learndemo.proxy.demo2.IFindWork;
 import org.springframework.cglib.proxy.MethodInterceptor;

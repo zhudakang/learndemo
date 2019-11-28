@@ -1,4 +1,4 @@
-package com.dk.learndemo.dynamicproxy.jdk;
+package com.dk.learndemo.designpattern.dynamicproxy.jdk;
 
 import com.dk.learndemo.proxy.demo2.IFindWork;
 

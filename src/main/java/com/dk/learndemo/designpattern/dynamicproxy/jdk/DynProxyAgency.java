@@ -1,4 +1,4 @@
-package com.dk.learndemo.dynamicproxy.jdk;
+package com.dk.learndemo.designpattern.dynamicproxy.jdk;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
