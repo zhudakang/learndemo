@@ -22,8 +22,4 @@ public class ProxyPattern {
         brother.eat();
         brother.meet();
     }
-
-
-
-
 }
