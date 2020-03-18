@@ -58,6 +58,5 @@ public class CglibProxy implements MethodInterceptor {
         //我们可以通过class来判断AOP是使用的哪种方式的代理。
         //class com.dk.learndemo.aop.cglib2.Work$$EnhancerByCGLIB$$b3dafa56
         System.out.println(workProxy.getClass());
-        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
     }
 }
