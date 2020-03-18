@@ -1,0 +1,3 @@
+spring都用到那些设计模式
+1.工厂模式
+BeanFactory就是一个工厂模式
