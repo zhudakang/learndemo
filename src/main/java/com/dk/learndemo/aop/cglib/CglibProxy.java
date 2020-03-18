@@ -9,6 +9,7 @@ import org.springframework.cglib.proxy.MethodProxy;
 /**
  * @author :zhudakang
  * @description : CglibProxy
+ *                 某个类被标记为final，那么它是无法使用CGLIB做动态代理的
  * @create : 2020/03/18
  */
 public class CglibProxy implements MethodInterceptor {
