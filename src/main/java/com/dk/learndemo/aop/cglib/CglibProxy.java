@@ -15,6 +15,10 @@ public class CglibProxy implements MethodInterceptor {
 
     private Object proxyObject;
 
+    /**
+     *
+     * 通过intercept来进行的动态代理
+     * */
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         System.out.println("CGlib动态代理，监听开始！");
@@ -28,9 +32,9 @@ public class CglibProxy implements MethodInterceptor {
         Enhancer enhancer = new Enhancer();
         //设置父类,因为Cglib是针对指定的类生成一个子类，所以需要指定父类
         enhancer.setSuperclass(objectTarget.getClass());
-        enhancer.setCallback(this);// 设置回调
-
-        return enhancer.create();//创建并返回代理对象
+        enhancer.setCallback(this);
+        //创建并返回代理对象
+        return enhancer.create();
     }
 
     public static void main(String[] args) {
