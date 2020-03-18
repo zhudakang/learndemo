@@ -7,7 +7,7 @@ package com.dk.learndemo.aop.cglib;
  */
 public class AgentServiceImpl {
     public String addAgent(String name) {
-        System.out.println("新增代理人：" + name);
+        System.out.println("agent name ：" + name);
         return name;
     }
 }
