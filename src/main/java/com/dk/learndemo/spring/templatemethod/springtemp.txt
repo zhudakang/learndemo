@@ -7,3 +7,39 @@ redisTemlate， AmqpTemplate等等。
 但是其实也不太一样，所以做了前置后后置
 个性化的进去个性化的项目，其他的都配成可以给allcompany使用。
 把通用需求做成模板方式。
+
+//RedisTemplate 源码分析
+redisTemplate.opsForValue().get(key); 是最常见的获取缓存的方法
+
+    public ValueOperations<K, V> opsForValue() {
+        if (this.valueOps == null) {
+            this.valueOps = new DefaultValueOperations(this);
+        }
+
+        return this.valueOps;
+    }
+
+   DefaultValueOperations(RedisTemplate<K, V> template) {
+            super(template);
+   }
+
+   获取了ValueOperations<K, V>对象之后，来get一下key 得到他的value
+
+   这边的this.valueOps指这个类中的私有变量，valueOps
+    @Nullable
+    private ValueOperations<K, V> valueOps;
+
+    里面有各种封装好的：
+        @Nullable
+        private ValueOperations<K, V> valueOps;
+        @Nullable
+        private ListOperations<K, V> listOps;
+        @Nullable
+        private SetOperations<K, V> setOps;
+        @Nullable
+        private ZSetOperations<K, V> zSetOps;
+        @Nullable
+        private GeoOperations<K, V> geoOps;
+        @Nullable
+        private HyperLogLogOperations<K, V> hllOps;
+
