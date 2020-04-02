@@ -1,0 +1,34 @@
+CREATE TABLE `company`  (
+  `id` int(11) NOT NULL,
+  `name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `description` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+
+CREATE TABLE `forward_config`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `short_original_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '原始地址(不含公司名称)',
+  `forward_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '要转发的地址',
+  `company` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '公司名称（要跟original_url拼成原始url）',
+  `category` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '分类',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_url`(`short_original_url`, `company`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+
+关于网关：
+Zuul做一个过滤用，转发，对外就提供一个URL
+进行路径的路由，定位到具体的服务节点上。
+比如服务的历史版本之类的。就可以根据网关通向V1 V2等等
+
+网关有以下几个作用：
+统一入口：服务提供一个唯一的入口，网关起到外部和内部隔离的作用，保障了后台服务的安全性。
+鉴权校验：识别每个请求的权限，拒绝不符合要求的请求。
+动态路由：动态的将请求路由到不同的后端集群中。
+减少客户端与服务端的耦合：服务可以独立发展，通过网关层来做映射。
+
+个人理解：
+动态路由，像我们服务的话，目的是为了将服务重构 而不让APP段更改进入的URI
+另一方面 可以找到对应的服务name 和服务的URI 一个服务就是一个application
+解耦。
+
+

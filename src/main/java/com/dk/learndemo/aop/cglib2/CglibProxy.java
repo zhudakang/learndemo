@@ -4,7 +4,6 @@ package com.dk.learndemo.aop.cglib2;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.aop.framework.ProxyFactoryBean;
 
 import java.lang.reflect.Method;
 

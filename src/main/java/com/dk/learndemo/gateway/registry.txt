@@ -1,0 +1,197 @@
+学习连接：https://www.cnblogs.com/jing99/p/11576133.html
+
+//注册中心
+只需要@EnableEurekaServer
+别的服务都是@EnableDiscoveryClient
+            @EnableFeignClients
+server与client
+
+注册中心通过配置来加载：
+给定端口之后，别的服务注册进去
+eureka:
+  client:
+    # 对于eureka注册中心来说，没必要再注册客户端
+    register-with-eureka: false
+    fetch-registry: false
+
+对于别的服务：
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+需要配置defaultzone  也就是把eureka地址配置进去。
+其实server也是一个服务，默认会自动注册到注册中心。
+这边有一个特点就还是，客户端是一个内置的，使用轮询的负载算法的负载均衡器。
+向server发送心跳，默认周期30S，如果多个心跳周期都没有收到心跳，移除这个节点
+默认三个周期。
+服务注册中心可以集群部署。
+eureka 什么都不需要都可以使用。
+Application Service和Application Client不是绝对上的定义，因为Provider在提供服务的同时，也可以消费其他Provider提供的服务；Consumer在消费服务的同时，也可以提供对外服务。
+
+概念：
+Register(服务注册)：把自己的IP和端口注册给Eureka。
+Renew(服务续约)：发送心跳包，每30秒发送一次。告诉Eureka自己还活着。
+Cancel(服务下线)：当provider关闭时会向Eureka发送消息，
+                  把自己从服务列表中删除。防止consumer调用到不存在的服务。
+Get Registry(获取服务注册列表)：获取其他服务列表。
+-- 并不是那么刚需的知识点：
+Replicate(集群中数据同步)：eureka集群中的数据复制与同步。
+Make Remote Call(远程调用)：完成服务的远程调用。
+
+ZOOKEEPER概念？ 以后再说现在不懂就算了。着手眼下
+eureka 包括单机版和集群版本。
+
+搭建eureka的过程只需要引入maven依赖就可以了。
+        <!-- spring cloud 默认配置启动器 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <!-- spring cloud Eureka Server 启动器 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+        </dependency>
+
+主要是配置文件中：
+eureka不需要做的事情：不注册和获取信息。server没有必要。
+是否将自己注册到Eureka-Server 不注册;
+是否从Eureka-Server中获取服务注册信息 不获取；
+
+
+
+集群版：
+ZooKeeper注册中心集群搭建后，集群中各节点呈现主从关系，集群中只有主节点对外提供服务的注册和发现功能，
+从节点相当于备份节点，只有主节点宕机时，从节点会选举出一个新的主节点，继续提供服务的注册和发现功能。
+
+Eureka Server注册中心集群中每个节点都是平等的，集群中的所有节点同时对外提供服务的发现和注册等功能。
+同时集群中每个Eureka Server节点又是一个微服务，也就是说，每个节点都可以在集群中的其他节点上注册当前服务。
+
+又因为每个节点都是注册中心，所以节点之间又可以相互注册当前节点中已注册的服务，并发现其他节点中已注册的服务。
+所以Eureka Server注册中心集群版在搭建过程中有很多的方式，找到一个最合适最可靠的搭建方式才能称为一个称职的程序员。
+
+注册中心有连带关系，如果某个节点党纪，那么这个节点注册过来的服务都会删除。
+
+
+
+因为要弄全局配置文件，是不是需要config？
+
+在集群搭建过程中，全局配置文件的定义非常重要。其中euraka.client.serviceUrl.defaultZone属性是用于配置集群中其他节点的。如果有多个节点，使用逗号','分隔。
+
+有部分程序员只配置某一个集群节点信息，通过集群节点间的注册通讯实现节点的全面发现。这种配置形式是不推荐的。因为Eureka Server在服务管理上，会根据连带责任来维护服务列表，如果某集群节点宕机，那么通过这个节点注册过来的服务都会连带删除。
+
+需要修改host文件，设置主机域名，将主机域名与IP绑定。
+192.168.2.115 eurekaserver1
+192.168.2.116 eurekaserver2
+
+
+#eurekaserver1配置
+spring.application.name=eureka-server
+server.port=8761
+# 设置eureka实例名称，建议与配置文件的变量相同，必须和Linux系统域名相同
+eureka.instance.hostname=eurekaserver1
+# 设置服务注册中心地址，指向另一个注册中心，使用域名作为访问路径
+eureka.client.serviceUrl.defaultZone=http://eurekaserver2:8761/eureka/
+
+#eurekaserver2配置
+spring.application.name=eureka-server
+server.port=8761
+eureka.instance.hostname=eurekaserver2
+eureka.client.serviceUrl.defaultZone=http://eurekaserver1:8761/eureka/
+
+
+那么eureka有什么需要改进和提升的优化点吗？
+
+CAP是什么？
+　　CAP原则又称CAP定理，指的是在一个分布式系统中，Consistency（数据一致性）、
+ Availability（服务可用性）、Partition tolerance（分区容错性），三者不可兼得。
+ CAP由Eric Brewer在2000年PODC会议上提出。该猜想在提出两年后被证明成立，成为我们熟知的CAP定理。
+
+ 数据一致性(Consistency)
+ 也叫做数据原子性系统在执行某项操作后仍然处于一致的状态。在分布式系统中，
+ 更新操作执行成功后所有的用户都应该读到最新的值，这样的系统被认为是具有强一致性的。
+ 等同于所有节点访问同一份最新的数据副本。
+ 优点： 数据一致，没有数据错误可能。
+ 缺点： 相对效率降低。
+
+ 服务可用性
+ (Availablity)
+ 每一个操作总是能够在一定的时间内返回结果，这里需要注意的是"一定时间内"和"返回结果"。
+ 一定时间内指的是，在可以容忍的范围内返回结果，结果可以是成功或者是失败。
+
+分区容错性
+在网络分区的情况下，被分隔的节点仍能正常对外提供服务
+(分布式集群，数据被分布存储在不同的服务器上，无论什么情况，服务器都能正常被访问)
+
+定律：任何分布式系统只可同时满足二点，没法三者兼顾。
+
+CA，放弃P
+如果想避免分区容错性问题的发生，一种做法是将所有的数据(与事务相关的)/服务都放在一台机器上。虽然无法100%保证系统不会出错，但不会碰到由分区带来的负面效果。当然这个选择会严重的影响系统的扩展性。
+
+CP，放弃A
+相对于放弃"分区容错性"来说，其反面就是放弃可用性。一旦遇到分区容错故障，那么受到影响的服务需要等待一定时间，因此在等待时间内系统无法对外提供服务。
+
+AP，放弃C
+	这里所说的放弃一致性，并不是完全放弃数据一致性，而是放弃数据的强一致性，而保留数据的最终一致性。
+	以网络购物为例，对只剩下一件库存的商品，如果同时接受了两个订单，那么较晚的订单将被告知商品告罄。
+（这种做法会比较好吧）
+
+Eureka是属于AP ，他没有最高级的数据一致性。
+对比Zookeeper
+CP
+Zookeeper 主要是只有一个leader真正对外服务，其他的从节点都是备份。如果有宕机了的，就可以选出新的leader对外提供服务。
+因为Eureka每个节点是平等式的，所以客户端仁义街店都可以提供实时响应，所以每个节点数据可能不是那么强的实时一直。
+需要通过网络通讯从其他节点获取数据 实现数据的一直。 有网络延迟的问题。
+
+Eureka的跨语言能力比较高一点点。
+watch支持？ 就是客户端监听服务器变化的情况，zk通过订阅监听来实现的，eureka通过轮询的来实现.
+
+在配置Eureka Server信息时，建议将Eureka Server集群中的所有节点依次配置，Eureka Client在注册服务的时候，会根据节点列表依次访问Eureka Server集群节点，只要注册成功，后续Eureka Server节点不再访问注册。
+要通过配置来进行注册，而不应该让server互相发现，因为server宕机会删除掉他的所以偶的节点，
+
+建议：如果有多个服务功能需要注册，那么在设置Eureka Server信息的时候，推荐异序排列。如：现在有3个工程A、B、C需要注册服务到Eureka Server集群中，集群节点有三个，分别是e1、e2、e3，那么在工程中推荐配置为，A工程配置-e1,e2,e3，B工程配置e2,e3,e1，C工程配置e3,e1,e2。这样可以更好的利用Eureka Server集群的特性。
+
+eureka的特点：
+1.服务保护模式：
+导致Eureka Server接收不到心跳包的可能：一是微服务自身的原因，二是微服务与Eureka之间的网络故障。通常微服务的自身的故障只会导致个别服务出现故障，一般不会出现大面积故障，而网络故障通常会导致Eureka Server在短时间内无法收到大批心跳。
+虑到这个区别，Eureka设置了一个阀值，当判断挂掉的服务的数量超过阀值时，Eureka Server认为很大程度上出现了网络故障，将不再删除心跳过期的服务。
+
+如果网络故障有阈值，超过这个阈值之后认为出了故障 不在删除过期的服务。
+那么这个阀值是多少呢？Eureka Server在运行期间，会统计心跳失败的比例在15分钟内是否低于85%，如果低于85%，Eureka Server则任务是网络故障，不会删除心跳过期服务。
+这种服务保护算法叫做Eureka Server的服务保护模式。
+这种不删除的，90秒没有心跳的服务，称为无效服务，但是还是保存在服务列表中。
+如果Consumer到注册中心发现服务，则Eureka Server会将所有好的数据（有效服务数据）
+和坏的数据（无效服务数据）都返回给Consum；
+
+2.  服务保护模式的存在必要性
+因为同时保留"好数据"与"坏数据"总比丢掉任何数据要更好，当网络故障恢复后，Eureka Server会退出"自我保护模式"。
+Eureka还有客户端缓存功能(也就是微服务的缓存功能)。
+即便Eureka Server集群中所有节点都宕机失效，微服务的Provider和Consumer都能正常通信。
+微服务的负载均衡策略会自动剔除死亡的微服务节点（Robbin）。
+只要Consumer不关闭，缓存始终有效，直到一个应用下的所有Provider访问都无效的时候，才会访问Eureka Server重新获取服务列表。
+
+3. 优雅的关闭服务：
+在Spring Cloud中，可以通过HTTP请求的方式，通知Eureka Client优雅停服，这个请求一旦发送到Eureka Client，那么Eureka Client会发送一个shutdown请求到Eureka Server，Eureka Server接收到这个shutdown请求后，会在服务列表中标记这个服务的状态为down，同时Eureka Client应用自动关闭。这个过程就是优雅停服。
+如果使用了优雅停服，则不需要再关闭Eureka Server的服务保护模式。
+
+POM依赖：
+优雅停服是通过Eureka Client发起的，所以需要在Eureka Client中增加新的依赖，这个依赖是autuator组件，添加下述依赖即可。
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-actuator</artifactId>
+</dependency>
+
+修改全局配置文件：
+Eureka Client默认不开启优雅停服功能，需要在全局配置文件中新增如下内容：
+
+# 启用shutdown，优雅停服功能
+endpoints.shutdown.enabled=true
+# 禁用密码验证
+endpoints.shutdown.sensitive=false
+
+发起shutdown请求：
+必须通过POST请求向Eureka Client发起一个shutdown请求。请求路径为：http://ip:port/shutdown。可以通过任意技术实现，如：HTTPClient、form表单，AJAX等。
+建议使用优雅停服方式来关闭Application Service/Application Client服务。
+
+

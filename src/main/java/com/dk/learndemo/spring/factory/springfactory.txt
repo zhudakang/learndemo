@@ -1,0 +1,32 @@
+spring都用到那些设计模式
+还有个问题很重要：spring申明式事务管理？
+还有就是什么是spring的上下文？
+1.工厂模式
+aop中，代理的创建使用了工厂模式。
+是一个AopProxyFactory。
+
+Object getBean(String var1) throws BeansException;
+<T> T getBean(String var1, Class<T> var2) throws BeansException;
+Object getBean(String var1, Object... var2) throws BeansException;
+<T> T getBean(Class<T> var1) throws BeansException;
+<T> T getBean(Class<T> var1, Object... var2) throws BeansException;
+
+总之可以根据bean名字，注意小写开头字母
+beanname + class类型
+class类型
+调用指定名字的指定的构造方法来获得对象。
+class + 构造方法
+
+//1.getBean(String id|name);要求id和name都不能重复。
+//Students s = (Students) ctx.getBean("stu2");
+
+//2.getBean(Class clazz);通过类型来加载bean，要求类型必须是唯一的***
+//Students s=ctx.getBean(Students.class);//注意：这里无需类型转换。
+
+//3.getBean(String id|name,Class clazz);
+Students s=ctx.getBean("stu2", Students.class);
+
+//4.getBean(String id|name, Object ...) ==>getBean(String id|name, Object[] )
+//调用指定id的指定的构造方法来获得对象。
+
+2.对于工厂模式，还有之前的写的OSS得静态工厂，全局创建一个OSS实例即可。
