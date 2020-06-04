@@ -14,7 +14,6 @@ public class LengthOfLongestSubstring {
 
     /**
      * 输出长度
-     * 官方的解题思路，没有完全看懂。。。
      */
     public static int lengthOfLongestSubstring(String s) {
         //dk的想法，使用Set来放元素
