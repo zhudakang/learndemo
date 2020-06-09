@@ -21,6 +21,6 @@ public class PasswordUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(encodePassword("bnsz4551"));
+        System.out.println(encodePassword("bnzj4490"));
     }
 }
