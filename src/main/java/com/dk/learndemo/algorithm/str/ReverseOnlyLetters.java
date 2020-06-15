@@ -18,6 +18,7 @@ public class ReverseOnlyLetters {
     public String reverseOnlyLetters(String S) {
         Stack<Character> letters = new Stack();
         for (char c : S.toCharArray())
+            //如果是字母，那么放到栈里面，然后先进后出
             if (Character.isLetter(c))
                 letters.push(c);
 
@@ -28,7 +29,6 @@ public class ReverseOnlyLetters {
             else
                 ans.append(c);
         }
-
         return ans.toString();
     }
 
