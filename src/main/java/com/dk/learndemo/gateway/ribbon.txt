@@ -1,0 +1,127 @@
+Spring Cloud Ribbon是一个基于HTTP和TCP的客户端负载均衡工具
+那这边最主要的关注的点是客户端的负载均衡！！！！！
+Spring Cloud Ribbon虽然只是一个工具类框架
+
+
+客户端的负载均衡:客户端节点自己维护要访问的服务器清单
+
+我们通常所说的负载均衡都指的是服务端负载均衡，其中分为硬件负载均衡和软件负载均衡。硬件负载均衡主要通过在服务器节点之间按照专门用于负载均衡的设备，比如F5等；
+而软件负载均衡则是通过在服务器上安装一些用于负载均衡功能或模块等软件来完成请求分发工作，比如Nginx等
+更多的是软件上面的负载均衡 Nginx
+
+负载均衡也是通过心跳检测来提出故该设备按某种算法（比如线性轮询、按权重负载、按流量负载等）
+从维护的可用服务端清单中取出一台服务端端地址，然后进行转发。
+
+
+而客户端负载均衡和服务端负载均衡最大的不同点在于上面所提到服务清单所存储的位置。
+在客户端负载均衡中，所有客户端节点都维护着自己要访问的服务端清单
+而这些服务端端清单来自于服务注册中心，比如上一章我们介绍的Eureka服务端。
+
+同服务端负载均衡的架构类似，在客户端负载均衡中也需要心跳去维护服务端清单的健康性，
+默认会创建针对各个服务治理框架的Ribbon自动化整合配置，比如Eureka中的
+org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration，Consul中的org.springframework.cloud.consul.discovery.RibbonConsulAutoConfiguration。在实际使用的时候，我们可以通过查看这两个类的实现，以找到它们的配置详情来帮助我们更好地使用它。
+
+其实就是配合eureka 一起配置使用，维护ribbon 客户端的负载均衡的清单以及健康性
+    通过Spring Cloud Ribbon的封装，我们在微服务架构中使用客户端负载均衡调用非常简单，只需要如下两步：
+        ▪️服务提供者只需要启动多个服务实例并注册到一个注册中心或是多个相关联的服务注册中心。
+        ▪️服务消费者直接通过调用被@LoadBalanced注解修饰过的RestTemplate来实现面向服务的接口调用。
+这样，我们就可以将服务提供者的高可用以及服务消费者的负载均衡调用一起实现了。
+
+总结：服务提供者需要注册到注册中心
+服务消费者 通过RestTemplate 和 @LoadBalanced 实现面向服务的接口调用。
+其实feign也就是简化了这些，通过接口和指定客户端，简化了HTTP和TCP的链接。
+对get请求有什么样的方式来实现？
+get请求可以使用getForEntity来获得。
+getForEntity(String url, Class responseType，Object... urlVariables)；
+▪️getForEntity(String url, Class responseType, Map urlVariables);
+RestTemplate restTemplate = new RestTemplate();
+
+String result = restTemplate.getForObject(uri, String.class);
+
+        当body是一个User对象时，可以直接这样实现：
+
+RestTemplate restTemplate = new RestTemplate();
+User result = restTemplate.getForObject(uri, User.class);
+当不需要关注请求响应除body外的其他内容时，该函数就非常好用，可以少一个从Response中获取body的步骤。它与getForEntity函数类似，也提供了三种不同的重载实现。
+▪️getForObject(String url, Class responseType, Object ... urlVariables)
+▪️getForObject(String url, Class responseType, Map urlVariables)
+▪️getForObject(URI url, Class responseType)
+
+总结getForEntity 和getForObject
+
+
+ribbon 与feign的区别？
+都是实现软负载均衡的组件，Ribbon 和 Feign 都是用于调用其他服务的，方式不同。
+Feign 则是在 Ribbon 的基础上进行了一次改进，采用接口的方式，将需要调用的其他服务的方法定义成抽象方法即可，
+不需要自己构建 http 请求。不过要注意的是抽象方法的注解、方法签名要和提供服务的方法完全一致。
+
+1.启动类使用的注解不同，Ribbon 用的是@RibbonClient，Feign 用的是@EnableFeignClients。
+2.服务的指定位置不同，Ribbon 是在@RibbonClient 注解上声明，Feign 则是在定义抽象方法的接口中使用@FeignClient 声明。
+
+
+Ribbon
+
+Ribbon 是一个基于 HTTP 和 TCP 客户端 的负载均衡的工具。它可以 在客户端 配置 RibbonServerList（服务端列表），
+使用 HttpClient 或 RestTemplate 模拟 http 请求，步骤相当繁琐。
+
+Feign
+Feign 是在 Ribbon 的基础上进行了一次改进，是一个使用起来更加方便的 HTTP 客户端。
+采用接口的方式， 只需要创建一个接口，然后在上面添加注解即可 ，将需要调用的其他服务的方法定义成抽象方法即可，
+不需要自己构建 http 请求。然后就像是调用自身工程的方法调用，而感觉不到是调用远程方法，使得编写 客户端变得非常容易。
+
+为什么是客户端的负载均衡？
+
+配置ribbon？
+#配置ribbon
+ribbon:
+  MaxAutoRetries: 2 #最大重试次数,当Eureka中可以找到服务,但是连接不上时将会重试
+  MaxAutoRetriesNextServer: 3 #切换实例的重试次数、高可用场景
+  OkToRetryOnAllOperation: false #对所有操作请求都进行重试,如果是get则可以,如果是post、put有重复提交的危险,建议设置为false
+  ConnectTimeout: 5000 #请求连接的超时时间
+  ReadTimeout: 6000 #请求处理的超时时间
+
+
+  主要还是当做是一个http的请求哇，有最大重试的次数，当eureka可以找到服务，但是连接不上的话就会进行重试。
+  ConnectTimeout 与readTimeOut
+
+（3）定义RestTemplate
+
+    @Bean
+    @LoadBalanced //使用该注解表示实现客户端负载均衡
+    public RestTemplate restTemplate(){
+        return new RestTemplate(new OkHttp3ClientHttpRequestFactory());
+    }
+
+（1）区别服务端负载均衡和客户端负载均衡
+向Nginx 、F5 等在请求发出之后，被负载均衡服务器拦截再分发到具体服务的方式是服务端负载均衡,
+而Ribbon是客户端先从Eureka Server获取服务列表，
+自己维护服务列表，根据负载均衡算法直接请求资源服务器的方式叫客户端负载均衡
+（2）Ribbon 实现客户端负载均衡细节
+在定义RestTempalte时加@LoadBalanced注解后、restTemplate会走LoadbanlanceInterceptor拦截器
+LoadbanlanceInterceptor.class
+
+@Override
+public ClientHttpResponse intercept(final HttpRequest request, final byte[] body,
+final ClientHttpRequestExecution execution) throws IOException {
+  final URI originalUri = request.getURI();
+      String serviceName = originalUri.getHost();
+      Assert.state(serviceName != null, "Request URI does not contain a valid hostname: " + originalUri);
+      //调用RibbonLoadBalancerClient
+      return this.loadBalancer.execute(serviceName, requestFactory.createRequest(request, body, execution));
+}
+
+    @Override
+    public <T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException {
+        //获取服务列表
+        ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
+        //根据负载均衡算法从服务列表中获取本次调用服务的地址
+        Server server = getServer(loadBalancer);
+        if (server == null) {
+            throw new IllegalStateException("No instances available for " + serviceId);
+        }
+        RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(server,
+                serviceId), serverIntrospector(serviceId).getMetadata(server));
+        return execute(serviceId, ribbonServer, request);
+    }
+
+    serviceId是固定的 但是server 要从loadBalancer 来获取到。然后再去执行
