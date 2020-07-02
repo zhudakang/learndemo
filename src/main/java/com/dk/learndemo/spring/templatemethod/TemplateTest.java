@@ -1,6 +1,4 @@
 package com.dk.learndemo.spring.templatemethod;
-
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import redis.clients.jedis.Jedis;
@@ -17,13 +15,6 @@ public class TemplateTest {
 
     @Autowired
     RedisTemplate redisTemplate;
-
-    /**
-     * 增加spring-amqp依赖
-     *
-     * */
-    @Autowired
-    AmqpTemplate amqpTemplate;
 
     /**
      * 原始的jedis实现
