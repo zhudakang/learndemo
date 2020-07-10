@@ -1,5 +1,8 @@
 package com.dk.learndemo.algorithm.tree;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * @author :zhudakang
  * @description : IsSymmetric
@@ -32,5 +35,43 @@ public class IsSymmetric {
         }
         //必须值也相等，检查左右和右左
         return p.val == q.val && check(p.left, q.right) && check(p.right, q.left);
+    }
+
+    public boolean isSymmetric2(TreeNode root) {
+        return check2(root, root);
+    }
+
+    public boolean check2(TreeNode u, TreeNode v) {
+        Queue<TreeNode> q = new LinkedList<TreeNode>();
+        /**
+         *  add() 和 offer() 区别
+         *  Queue 中 add() 和 offer()都是用来向队列添加一个元素。
+         * 在容量已满的情况下，add() 方法会抛出IllegalStateException异常，offer() 方法只会返回 false 。
+         * */
+        q.offer(u);
+        q.offer(v);
+        //需要所有的节点都比较完了
+        while (!q.isEmpty()) {
+            u = q.poll();
+            v = q.poll();
+            if (u == null && v == null) {
+                continue;
+            }
+            if ((u == null || v == null) || (u.val != v.val)) {
+                return false;
+            }
+
+            //里面放的是左右节点
+            //u 左
+            q.offer(u.left);
+            //v 右
+            q.offer(v.right);
+
+            //u 右边
+            q.offer(u.right);
+            //v 左边
+            q.offer(v.left);
+        }
+        return true;
     }
 }
