@@ -17,7 +17,7 @@ public class MergeTwoLists {
      * DK解法和思路：把两个都放到list中，然后进行升序，最后输出
      * 输入：1->2->4, 1->3->4
      * 输出：1->1->2->3->4->4
-     *
+     * <p>
      * 不好意思，我没看是升序链表= =
      */
     public static ListNode mergeTwoLists(ListNode l1, ListNode l2) {
@@ -54,19 +54,16 @@ public class MergeTwoLists {
 
     /**
      * 官方题解，惊呼nb
-     * */
+     */
     public ListNode mergeTwoLists2(ListNode l1, ListNode l2) {
         if (l1 == null) {
             return l2;
-        }
-        else if (l2 == null) {
+        } else if (l2 == null) {
             return l1;
-        }
-        else if (l1.val < l2.val) {
+        } else if (l1.val < l2.val) {
             l1.next = mergeTwoLists2(l1.next, l2);
             return l1;
-        }
-        else {
+        } else {
             l2.next = mergeTwoLists2(l1, l2.next);
             return l2;
         }
@@ -75,7 +72,7 @@ public class MergeTwoLists {
 
     /**
      * 这个是改变了入参的一种做法
-     * */
+     */
     public ListNode mergeTwoLists3(ListNode l1, ListNode l2) {
         ListNode prehead = new ListNode(-1);
         ListNode prev = prehead;
@@ -93,6 +90,24 @@ public class MergeTwoLists {
         // 合并后 l1 和 l2 最多只有一个还未被合并完，我们直接将链表末尾指向未合并完的链表即可
         prev.next = l1 == null ? l2 : l1;
         return prehead.next;
+    }
+
+    public ListNode mergeTwoLists5(ListNode l1, ListNode l2) {
+        ListNode dum = new ListNode(0), cur = dum;
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+
+        }
+        cur.next = l1 != null ? l1 : l2;
+        //因为最后需要返回头
+        return dum.next;
     }
 
     public static void main(String[] args) {
