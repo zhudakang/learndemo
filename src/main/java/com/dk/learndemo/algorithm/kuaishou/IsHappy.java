@@ -39,4 +39,16 @@ public class IsHappy {
         return n == 1;
     }
 
+    /***
+     * 快慢指针
+     * */
+    public boolean isHappy2(int n) {
+        int slowRunner = n;
+        int fastRunner = getNext(n);
+        while (fastRunner != 1 && slowRunner != fastRunner) {
+            slowRunner = getNext(slowRunner);
+            fastRunner = getNext(getNext(fastRunner));
+        }
+        return fastRunner == 1;
+    }
 }
