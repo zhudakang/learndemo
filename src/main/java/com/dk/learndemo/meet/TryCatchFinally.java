@@ -117,7 +117,7 @@ public class TryCatchFinally {
 //        testReturn1();
 //        testReturn2();
 //        testReturn3();
-//        testReturn4();
-        testReturn5();
+        testReturn4();
+//        testReturn5();
     }
 }
